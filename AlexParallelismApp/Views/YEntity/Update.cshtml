@@ -1,0 +1,81 @@
+@model YEntityViewModel
+
+@{
+    const string textTitle = "Update";
+}
+
+@{
+    ViewData["Title"] = textTitle;
+}
+
+<div class="add-new-page-container">
+    <div class="add-new-page-background-container">
+        <div class="form-container">
+            <form class="js-form-validate" id="form" method="post" asp-action="Update" enctype="multipart/form-data">
+                <h2 class="add-new-header">@textTitle YEntity</h2>
+                <div class="row">
+                    <div class="form-group-row">
+                        <div class="col-4">
+                            <label>Name</label>
+                        </div>
+                        <div class="add-input-container">
+                            <div class="error-field" id="error-name"></div>
+                            <input asp-for="Name" id="name" placeholder="From 5 to 50 symbols.." pattern=".{5,50}" required/>
+                        </div>
+                    </div>
+                    <div class="form-group-row">
+                        <div class="col-4">
+                            <label>Description</label>
+                        </div>
+                        <div class="add-input-container">
+                            <div class="error-field" id="error-description"></div>
+                            <textarea id="description" asp-for="Description" placeholder="From 5 to 100 symbols.." pattern=".{5,100}" required 
+                            class="description-input" 
+                            rows="3" ></textarea>
+                        </div>
+                    </div>
+                    <div class="add-submit-container">
+                        <input class="submit-add-button" id="submit" type="submit" value="@textTitle"/>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+const form = document.getElementById("form");
+const name = document.getElementById("name");
+const description = document.getElementById("description");
+const submit = document.getElementById("submit");
+
+form.addEventListener('input', _ => {
+    const error_Name = document.getElementById("error-name"); 
+    const error_Description = document.getElementById("error-description");
+    submit.disabled = false;
+    if (name.value === '' || name.value == null) {
+        error_Name.innerText = 'Name is required'
+        submit.disabled = true;
+        }
+    else if (name.value.length < 5 || name.value.length > 50){
+        error_Name.innerText = 'Name must be between 5...50 characters long'
+        submit.disabled = true;
+        }
+    else {
+        error_Name.innerText = ''
+        }
+    
+   
+    if (description.value === '' || description.value == null) {
+        error_Description.innerText = 'Description is required'
+        submit.disabled = true;
+        }
+    else if (description.value.length < 5 || description.value.length > 100){
+        error_Description.innerText = 'Description must be between 5...100 characters long'
+        submit.disabled = true;
+        }
+    else {
+        error_Description.innerText = ''
+        }    
+})
+</script>

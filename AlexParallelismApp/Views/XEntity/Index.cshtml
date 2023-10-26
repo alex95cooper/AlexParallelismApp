@@ -1,0 +1,50 @@
+@model List<XEntityViewModel>;
+
+@{
+    const string textTitle = "Catalog";
+    ViewData["Title"] = textTitle;
+}
+
+<div class="catalog-page-container">
+    <div class="catalog-page-background-container">
+        <div class="catalog-content">
+
+            <div class="add-button">
+                <a class="add-button-content" asp-controller="XEntity" asp-action="Add">
+                    <strong>+ Add new</strong>
+                </a>
+            </div>
+
+            @if (Model.Count > 0)
+            {
+                <div class="entities-container">
+                    @foreach (var xEntity in Model.Where(xEntity => xEntity != null))
+                    {
+                        <div class="model-container">
+                            <div class="model-info-container">
+                                <h2 class="name">@xEntity.Name</h2>
+                                <p class="description">@xEntity.Description</p>
+                                <div class="model-buttons-container">
+                                    <a class="change-button" asp-controller="XEntity" asp-route-id="@xEntity.Id"
+                                       asp-action="Update">
+                                        Change
+                                    </a>
+                                    <a class="delete-button" asp-controller="XEntity" asp-route-id="@xEntity.Id"
+                                       asp-route-ticks="@xEntity.UpdateTime.Ticks" asp-action="Delete">
+                                        Delete
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="notification-header">
+                    <h1>Catalog is empty</h1>
+                </div>
+            }
+        </div>
+    </div>
+</div>

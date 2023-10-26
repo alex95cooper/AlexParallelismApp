@@ -1,0 +1,24 @@
+@model XEntityViewModel
+
+@{
+    const string textTitle = "Error delete";
+}
+
+@{
+    ViewData["Title"] = textTitle;
+}
+
+<div class="error-delete-container">
+    <div class="error-delete-background-container">
+        <div class="form-container">
+            <h2 class="error-delete-header">@ViewBag.Message</h2>
+            <a class="change-button" asp-controller="XEntity" asp-action="Index">
+                Сancel
+            </a>
+            <a class="delete-button" asp-controller="XEntity" asp-route-id="@Model.Id"
+               asp-route-ticks="@Model.UpdateTime.Ticks" asp-action="Delete">
+                Delete
+            </a>
+        </div>
+    </div>
+</div>
