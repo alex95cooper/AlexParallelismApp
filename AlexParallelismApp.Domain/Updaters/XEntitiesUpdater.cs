@@ -27,7 +27,7 @@ public class XEntitiesUpdater : IXEntitiesUpdater
             return ResultCreator.GetValidResult();
         }
 
-        if (dbXEntity.UpdateTime == new DateTime())
+        if (dbXEntity.Id == 0)
         {
             return ResultCreator.GetInvalidResult(
                 Constants.ErrorMessages.ObjectDeleted, ErrorStatus.ObjectDeleted);

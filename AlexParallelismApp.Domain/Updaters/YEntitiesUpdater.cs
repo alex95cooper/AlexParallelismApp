@@ -25,24 +25,29 @@ public class YEntitiesUpdater : IYEntitiesUpdater
 
     public async Task<IResult> UpdateYEntityAsync(YEntityDto yEntityDto)
     {
-        YEntity yEntityDal = _mapper.Map<YEntity>(yEntityDto);
-        if (!_yEntityRepository.FindAsync(yEntityDal.Id).Result.IsLocked)
+        YEntity yEntityDal = await _yEntityRepository.FindAsync(yEntityDto.Id);
+        if (yEntityDal.IsLocked && yEntityDal.SessionId == Context.Session.Id)
         {
-            await _yEntityRepository.LockAsync(yEntityDal.Id, Context.Session.Id);
-            if (_yEntityRepository.FindAsync(yEntityDal.Id).Result.Id == 0)
-            {
-                return ResultCreator.GetInvalidResult(
-                    Constants.ErrorMessages.ObjectDeleted, ErrorStatus.ObjectDeleted);
-            }
-
             await _yEntityRepository.UpdateAsync(yEntityDal, Context.Session.Id);
             await _yEntityRepository.UnlockAsync(yEntityDal.Id);
             return ResultCreator.GetValidResult();
         }
 
+        if (_yEntityRepository.FindAsync(yEntityDal.Id).Result.Id == 0)
+        {
+            return ResultCreator.GetInvalidResult(
+                Constants.ErrorMessages.ObjectDeleted, ErrorStatus.ObjectDeleted);
+        }
+
         return ResultCreator.GetInvalidResult(string.Format(
                 Constants.ErrorMessages.PessimisticVersionConflict, yEntityDal.Name),
             ErrorStatus.ObjectUpdated);
+    }
+
+    public async Task<IResult> CancelLock(int id)
+    {
+        await _yEntityRepository.UnlockAsync(id);
+        return ResultCreator.GetValidResult();
     }
 
     public async Task<IResult> DeleteYEntityAsync(YEntityDto yEntityDto)

@@ -8,13 +8,14 @@
 <div class="catalog-page-container">
     <div class="catalog-page-background-container">
         <div class="catalog-content">
-
             <div class="add-button">
                 <a class="add-button-content" asp-controller="XEntity" asp-action="Add">
                     <strong>+ Add new</strong>
                 </a>
             </div>
-
+            <div class="header">
+                <h2>XEntities</h2>
+            </div>
             @if (Model.Count > 0)
             {
                 <div class="entities-container">
@@ -26,11 +27,12 @@
                                 <p class="description">@xEntity.Description</p>
                                 <div class="model-buttons-container">
                                     <a class="change-button" asp-controller="XEntity" asp-route-id="@xEntity.Id"
-                                       asp-action="Update">
+                                       asp-action="GetById">
                                         Change
                                     </a>
                                     <a class="delete-button" asp-controller="XEntity" asp-route-id="@xEntity.Id"
-                                       asp-route-ticks="@xEntity.UpdateTime.Ticks" asp-action="Delete">
+                                       asp-route-ticks="@xEntity.UpdateTime.Ticks" asp-action="Delete" 
+                                       style="margin-left: 10px">
                                         Delete
                                     </a>
                                 </div>

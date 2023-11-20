@@ -13,7 +13,6 @@ public static class SeedDataBase
         FillYEntities(connection);
     }
 
-
     private static void InitXEntities(SqlConnection connection)
     {
         SqlCommand cmd = new SqlCommand(@"IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='XEntity' and xtype='U')  

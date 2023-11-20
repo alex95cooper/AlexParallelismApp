@@ -2,21 +2,22 @@ using System.Data;
 using System.Data.SqlClient;
 using AlexParallelismApp.DAL.Interfaces;
 using AlexParallelismApp.DAL.Models;
+using Microsoft.Extensions.Options;
 
 namespace AlexParallelismApp.DAL.Repositories;
 
 public class XEntityRepository : IXEntityRepository
 {
-    private readonly string _connectionString;
+    private readonly ConnectionStrings _connectionStrings;
 
-    public XEntityRepository(string connectionString)
+    public XEntityRepository(IOptionsMonitor<ConnectionStrings> option)
     {
-        _connectionString = connectionString;
+        _connectionStrings = option.CurrentValue;
     }
 
     public async Task<XEntity> FindAsync(int id)
     {
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(_connectionStrings.DefaultConnection);
         SqlCommand cmd = new SqlCommand("SELECT * FROM XEntity WHERE Id = @Id", connection);
         cmd.Parameters.AddWithValue("@Id", id);
         connection.Open();
@@ -26,7 +27,7 @@ public class XEntityRepository : IXEntityRepository
 
     public async Task<List<XEntity>> GetAllAsync()
     {
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(_connectionStrings.DefaultConnection);
         SqlCommand cmd = new SqlCommand("SELECT * FROM XEntity", connection);
         connection.Open();
         SqlDataReader reader = await cmd.ExecuteReaderAsync();
@@ -35,7 +36,7 @@ public class XEntityRepository : IXEntityRepository
 
     public async Task CreateAsync(XEntity entity)
     {
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(_connectionStrings.DefaultConnection);
         SqlCommand cmd = new SqlCommand(@"INSERT INTO XEntity
             (Name, Description, UpdateTime)
             VALUES (@Name, @Description, GETDATE())", connection);
@@ -47,7 +48,7 @@ public class XEntityRepository : IXEntityRepository
 
     public async Task UpdateAsync(XEntity entity)
     {
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(_connectionStrings.DefaultConnection);
         SqlCommand cmd = new SqlCommand(@"UPDATE XEntity
             SET Name = @Name, Description = @Description, UpdateTime = GETDATE()
             WHERE Id = @Id", connection);
@@ -60,7 +61,7 @@ public class XEntityRepository : IXEntityRepository
 
     public async Task DeleteAsync(XEntity entity)
     {
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(_connectionStrings.DefaultConnection);
         var cmd = new SqlCommand(@"DELETE FROM XEntity
             WHERE ID = @Id AND UpdateTime =  @UpdateTime", connection);
         connection.Open();

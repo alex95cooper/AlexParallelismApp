@@ -1,0 +1,197 @@
+@model YEntityViewModel
+
+@{
+    const string textTitle = "Update";
+}
+
+@{
+    ViewData["Title"] = textTitle;
+}
+
+<div class="add-new-page-container">
+    <div class="add-new-page-background-container">
+        <div class="form-container">
+            <form class="js-form-validate" id="form" method="post" asp-action="Update" enctype="multipart/form-data">
+                <h2 class="add-new-header">@textTitle YEntity</h2>
+                <div class="row">
+                    <div class="form-group-row">
+                        <div class="col-4">
+                            <label>Name</label>
+                        </div>
+                        <div class="add-input-container">
+                            <div class="error-field" id="error-name"></div>
+                            <input asp-for="Name" id="name" placeholder="From 5 to 50 symbols.." pattern=".{5,50}" required/>
+                        </div>
+                    </div>
+                    <div class="form-group-row">
+                        <div class="col-4">
+                            <label>Description</label>
+                        </div>
+                        <div class="add-input-container">
+                            <div class="error-field" id="error-description"></div>
+                            <textarea id="description" asp-for="Description" placeholder="From 5 to 100 symbols.." pattern=".{5,100}" required 
+                            class="description-input" 
+                            rows="3" ></textarea>
+                        </div>
+                    </div>
+                    <div class="add-submit-container">
+                        <input class="submit-add-button" id="submit" type="submit" value="@textTitle"/>
+                    </div>
+                </div>
+            </form>
+            <button id="cancel-lock" onclick="callCancelBlocking()" style="display: none">Call Server Method</button>
+            <button id="update-timer" onclick="callTimerUpdate()" style="display: none">Call Server Method</button>
+            <button id="y-entity-button" onclick="callIndex()" style="display: none">Call Server Method</button>
+        </div>
+    </div>
+</div>
+
+<div class="popup-bg">
+    <div class="popup-info">
+        <div class="popup-message-container">
+            <p class="popup-message">Canceling updates will be done by : </p>
+            <p class="countdown"></p>
+        </div>
+        <div class="popup-buttons">
+            <button id="cancel-popup" onclick="cancelMessage()">I'll finish the changes</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+let modelId = @Model.Id;
+let inputFormIntervalIsOver = true;
+let timeToShowMessage = 180000;
+let messageLifetime = 120000;
+let inputWaitingInterval = 30000;
+window.addEventListener('load', function () { 
+    setInputWaitingTimer(); 
+})
+</script>
+
+<script type="text/javascript">
+window.addEventListener('beforeunload', function (event) {
+    let confirmationMessage = 'Are you sure you want to leave?';
+    $("#cancel-lock").click();
+    event.returnValue = confirmationMessage; 
+    return confirmationMessage; 
+});
+</script>
+
+<script>
+const form = document.getElementById("form");
+const name = document.getElementById("name");
+const description = document.getElementById("description");
+const submit = document.getElementById("submit");
+
+form.addEventListener('input', _ => {
+    const error_Name = document.getElementById("error-name"); 
+    const error_Description = document.getElementById("error-description");
+    submit.disabled = false;
+    
+    if (inputFormIntervalIsOver) {
+        form.setTimeout(function() { inputFormIntervalIsOver = true; }, inputWaitingInterval);               
+        setInputWaitingTimer();       
+        inputFormIntervalIsOver = false;
+    }
+      
+    if (name.value === '' || name.value == null) {
+        error_Name.innerText = 'Name is required'
+        submit.disabled = true;
+    }
+    else if (name.value.length < 5 || name.value.length > 50){
+        error_Name.innerText = 'Name must be between 5...50 characters long'
+        submit.disabled = true;
+    }
+    else {
+        error_Name.innerText = ''
+    }
+    
+    if (description.value === '' || description.value == null) {
+        error_Description.innerText = 'Description is required'
+        submit.disabled = true;
+    }
+    else if (description.value.length < 5 || description.value.length > 100){
+        error_Description.innerText = 'Description must be between 5...100 characters long'
+        submit.disabled = true;
+    }
+    else {
+        error_Description.innerText = ''
+    }    
+})
+</script>
+
+<script type="text/javascript">
+function callCancelBlocking() {
+    $.ajax({
+        type: 'POST',
+        url: '/YEntity/CancelLock', 
+        data: { id: modelId },
+        dataType: 'json'
+    });
+}
+
+function callTimerUpdate() {
+   $.ajax({
+      type: 'POST',
+      url: '/YEntity/UpdateTimer', 
+      data: { id: modelId },
+      dataType: 'json'
+   });
+}
+
+function callIndex() {
+    location.href = "/YEntity/Index";
+}
+</script>
+
+<script>
+function setInputWaitingTimer() {
+    $("#update-timer").click();
+    window.clearTimeout();
+    window.setTimeout(function() { 
+        showMessage();
+    }, timeToShowMessage);   
+}
+</script>
+
+<script>
+function setMessageTimeout() {
+    window.clearTimeout();
+    window.setTimeout(function() { 
+        hideMessage();
+        $("#y-entity-button").click();
+    }, messageLifetime);   
+}
+</script>
+
+<script>
+function showMessage() {
+    $('.popup-bg').fadeIn(800);
+    $('html').addClass('no-scroll'); 
+    setMessageTimeout();
+    
+    let distance = 120000;
+    setInterval(function() {
+      distance = distance - 1000;
+      let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      let seconds = Math.floor((distance % (1000 * 60)) / 1000);    
+      $('.countdown').text(minutes + "m " + seconds + "s ");      
+    }, 1000);
+}
+</script>
+
+<script>
+function cancelMessage() {
+    hideMessage(); 
+    setInputWaitingTimer();
+}
+</script>
+
+<script>
+function hideMessage() {
+    $(".popup-bg").css("display", "none");
+    $('html').removeClass('no-scroll');
+}
+</script>
+

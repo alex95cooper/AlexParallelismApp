@@ -1,4 +1,5 @@
 using AlexParallelismApp;
+using AlexParallelismApp.DAL;
 using AlexParallelismApp.Extensions;
 using AlexParallelismApp.Mappings;
 
@@ -8,12 +9,15 @@ builder.Services.AddControllersWithViews();
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+builder.Services.Configure<ConnectionStrings>(
+    builder.Configuration.GetSection("ConnectionStrings"));
+
 SeedDataBase.Init(connectionString);
 
 builder.Services.AddAutoMapper(typeof(XEntityVmMappingProfile), typeof(XEntityDtoMappingProfile),
     typeof(YEntityVmMappingProfile), typeof(YEntityDtoMappingProfile));
 
-builder.Services.InitializeDataComponents(connectionString);
+builder.Services.InitializeDataComponents();
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();

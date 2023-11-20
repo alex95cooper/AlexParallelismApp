@@ -1,6 +1,7 @@
 using AlexParallelismApp.Domain;
 using AlexParallelismApp.Domain.Interfaces.XEntity;
 using AlexParallelismApp.Domain.Models;
+using AlexParallelismApp.Extensions;
 using AlexParallelismApp.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -9,24 +10,24 @@ namespace AlexParallelismApp.Controllers;
 
 public class XEntityController : Controller
 {
-    private readonly IXEntitiesCreator _ixEntitiesCreator;
-    private readonly IXEntitiesProvider _ixEntitiesProvider;
-    private readonly IXEntitiesUpdater _ixEntitiesUpdater;
+    private readonly IXEntitiesCreator _xEntitiesCreator;
+    private readonly IXEntitiesProvider _xEntitiesProvider;
+    private readonly IXEntitiesUpdater _xEntitiesUpdater;
     private readonly IMapper _mapper;
 
     public XEntityController(IXEntitiesCreator ixEntitiesCreator, IXEntitiesProvider ixEntitiesProvider,
         IXEntitiesUpdater ixEntitiesUpdater, IMapper mapper)
     {
-        _ixEntitiesCreator = ixEntitiesCreator;
-        _ixEntitiesProvider = ixEntitiesProvider;
-        _ixEntitiesUpdater = ixEntitiesUpdater;
+        _xEntitiesCreator = ixEntitiesCreator;
+        _xEntitiesProvider = ixEntitiesProvider;
+        _xEntitiesUpdater = ixEntitiesUpdater;
         _mapper = mapper;
     }
 
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var result = await _ixEntitiesProvider.GetXEntitiesAsync();
+        var result = await _xEntitiesProvider.GetXEntitiesAsync();
         List<XEntityViewModel> listVm = _mapper.Map<List<XEntityViewModel>>(result.Data);
         return View(listVm);
     }
@@ -38,9 +39,9 @@ public class XEntityController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Update(int id)
+    public async Task<IActionResult> GetById(int id)
     {
-        var result = await _ixEntitiesProvider.GetXEntityAsync(id);
+        var result = await _xEntitiesProvider.GetXEntityAsync(id);
         var model = _mapper.Map<XEntityViewModel>(result.Data);
         if (result.IsSuccess)
         {
@@ -55,13 +56,14 @@ public class XEntityController : Controller
     public IActionResult ErrorUpdate()
     {
         ViewBag.Message = TempData["Error"] as string;
-        return View();
+        XEntityViewModel model = TempData.Get<XEntityViewModel>("Model");
+        return View(model);
     }
 
     [HttpGet]
     public async Task<IActionResult> ErrorDelete(int id)
     {
-        var result = await _ixEntitiesProvider.GetXEntityAsync(id);
+        var result = await _xEntitiesProvider.GetXEntityAsync(id);
         var model = _mapper.Map<XEntityViewModel>(result.Data);
         ViewBag.Message = TempData["Error"] as string;
         return View(model);
@@ -72,7 +74,7 @@ public class XEntityController : Controller
     public async Task<IActionResult> Add(XEntityViewModel model)
     {
         XEntityDto entity = _mapper.Map<XEntityDto>(model);
-        var result = await _ixEntitiesCreator.AddXEntityAsync(entity);
+        var result = await _xEntitiesCreator.AddXEntityAsync(entity);
         if (result.IsSuccess)
         {
             ViewBag.Message = Constants.Notifications.AddSuccessfully;
@@ -88,7 +90,7 @@ public class XEntityController : Controller
     public async Task<IActionResult> Update(XEntityViewModel model)
     {
         XEntityDto entity = _mapper.Map<XEntityDto>(model);
-        var result = await _ixEntitiesUpdater.UpdateXEntityAsync(entity);
+        var result = await _xEntitiesUpdater.UpdateXEntityAsync(entity);
         if (result.IsSuccess)
         {
             ViewBag.Message = Constants.Notifications.UpdateSuccessfully;
@@ -98,7 +100,8 @@ public class XEntityController : Controller
         if (result.ErrorStatus == ErrorStatus.ObjectUpdated)
         {
             TempData["Error"] = result.Error;
-            return RedirectToAction("ErrorUpdate", new {id = model.Id});
+            TempData.Put("Model", model);
+            return RedirectToAction("ErrorUpdate");
         }
 
         ViewBag.Message = result.Error;
@@ -110,7 +113,7 @@ public class XEntityController : Controller
     {
         DateTime date = new DateTime(ticks);
         XEntityDto entity = new XEntityDto {Id = id, UpdateTime = date};
-        var deleteResult = await _ixEntitiesUpdater.DeleteXEntityAsync(entity);
+        var deleteResult = await _xEntitiesUpdater.DeleteXEntityAsync(entity);
         if (deleteResult.IsSuccess)
         {
             ViewBag.Message = Constants.Notifications.DeleteSuccessfully;

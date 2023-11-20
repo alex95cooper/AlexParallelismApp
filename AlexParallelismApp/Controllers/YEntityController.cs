@@ -12,6 +12,7 @@ public class YEntityController : Controller
     private readonly IYEntitiesProvider _yEntitiesProvider;
     private readonly IYEntitiesUpdater _yEntitiesUpdater;
     private readonly IMapper _mapper;
+    private readonly CancelLockTimer _timer;
 
     public YEntityController(IYEntitiesCreator yEntitiesCreator, IYEntitiesProvider yEntitiesProvider,
         IYEntitiesUpdater yEntitiesUpdater, IMapper mapper)
@@ -20,6 +21,7 @@ public class YEntityController : Controller
         _yEntitiesProvider = yEntitiesProvider;
         _yEntitiesUpdater = yEntitiesUpdater;
         _mapper = mapper;
+        _timer = new CancelLockTimer(this);
     }
 
     [HttpGet]
@@ -37,16 +39,17 @@ public class YEntityController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Update(int id)
+    public async Task<IActionResult> GetById(int id)
     {
         var result = await _yEntitiesProvider.GetYEntityAsync(id);
         var model = _mapper.Map<YEntityViewModel>(result.Data);
         if (result.IsSuccess)
         {
+            _timer.StartTimer(id);
             return View(model);
         }
 
-        ViewBag.Message = result.Error;
+        ViewBag.Message = result.Error; 
         return View("Notification");
     }
 
@@ -82,7 +85,20 @@ public class YEntityController : Controller
         return View("Notification");
     }
 
-    [HttpGet]
+    [HttpPost]
+    public async Task CancelLock(int id)
+    {
+        await _yEntitiesUpdater.CancelLock(id);
+        _timer.StopTimer(id);
+    }
+    
+    [HttpPost]
+    public void UpdateTimer(int id)
+    {
+        _timer.UpdateTimer(id);
+    }
+
+    [HttpPost]
     public async Task<IActionResult> Delete(int id)
     {
         YEntityDto entity = new YEntityDto {Id = id};

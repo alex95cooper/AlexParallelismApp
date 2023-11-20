@@ -1,11 +1,12 @@
 @{
     ViewData["Title"] = "Notify";
+    string stringWithHtmlLineBreaks = ViewBag.Message.Replace("\n", "<br />");
 }
 
 <div class="notification-page-container">
     <div class="notification-page-background-container">
         <div class="notification-header">
-            <h2>@ViewBag.Message</h2>
+            <h2>@Html.Raw(stringWithHtmlLineBreaks)</h2>
         </div>
     </div>
 

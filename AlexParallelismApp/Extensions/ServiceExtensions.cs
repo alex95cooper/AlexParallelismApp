@@ -10,15 +10,13 @@ namespace AlexParallelismApp.Extensions;
 
 public static class ServiceExtensions
 {
-    public static void InitializeDataComponents(this IServiceCollection services, string connectionString)
+    public static void InitializeDataComponents(this IServiceCollection services)
     {
-        services.AddTransient<IXEntityRepository, XEntityRepository>(_ =>
-            new XEntityRepository(connectionString));
+        services.AddTransient<IXEntityRepository, XEntityRepository>();
         services.AddTransient<IXEntitiesCreator, XEntitiesCreator>();
         services.AddTransient<IXEntitiesProvider, XEntitiesProvider>();
         services.AddTransient<IXEntitiesUpdater, XEntitiesUpdater>();
-        services.AddTransient<IYEntityRepository, YEntityRepository>(_ =>
-            new YEntityRepository(connectionString));
+        services.AddTransient<IYEntityRepository, YEntityRepository>();
         services.AddTransient<IYEntitiesCreator, YEntitiesCreator>();
         services.AddTransient<IYEntitiesProvider, YEntitiesProvider>();
         services.AddTransient<IYEntitiesUpdater, YEntitiesUpdater>();

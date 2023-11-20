@@ -14,7 +14,9 @@
                     <strong>+ Add new</strong>
                 </a>
             </div>
-
+            <div class="header">
+                <h2>YEntities</h2>
+            </div>
             @if (Model.Count > 0)
             {
                 <div class="entities-container">
@@ -26,11 +28,11 @@
                                 <p class="description">@yEntity.Description</p>
                                 <div class="model-buttons-container">
                                     <a class="change-button" asp-controller="YEntity" asp-route-id="@yEntity.Id"
-                                       asp-action="Update">
+                                       asp-action="GetById">
                                         Change
                                     </a>
                                     <a class="delete-button" asp-controller="YEntity" asp-route-id="@yEntity.Id"
-                                        asp-action="Delete">
+                                        asp-action="Delete" style="margin-left: 10px">
                                         Delete
                                     </a>
                                 </div>
